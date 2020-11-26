@@ -1,6 +1,8 @@
 c  Version 1.0 - 26 Sep 2019- Eric Palmer 
 c	This outputs a set of binary files of i, e, and phase
 c  gfortran phasei.f /usr/local/lib/spicelib.a COMMON.a -O2 -o ~/bin/t.phasei
+c  Version 1.1 - 25 Nov 2020 - Eric E. Palmer
+c		Calculates lat/lon and outputs them also
 
       IMPLICIT NONE
 
@@ -36,7 +38,7 @@ c  gfortran phasei.f /usr/local/lib/spicelib.a COMMON.a -O2 -o ~/bin/t.phasei
       INTEGER               K
       INTEGER               zeros
       INTEGER               NPX, NLN, T1, T2
-      INTEGER               version
+      real               version
     
       DOUBLE PRECISION      V0(3)
       DOUBLE PRECISION      SZ(3)
@@ -59,6 +61,7 @@ c  gfortran phasei.f /usr/local/lib/spicelib.a COMMON.a -O2 -o ~/bin/t.phasei
       DOUBLE PRECISION      localV(3)
       REAL                  Z0
       REAL                  ang
+      REAL                  dist, lat, lon
 
 
 
@@ -67,7 +70,7 @@ c  gfortran phasei.f /usr/local/lib/spicelib.a COMMON.a -O2 -o ~/bin/t.phasei
       CHARACTER*72          PICT
       CHARACTER*72          PICTFILE
     
-      version = 2
+      version = 1.1
 
 
       WRITE(*,*) 'Version:', version
@@ -169,6 +172,10 @@ C     Open the files that we will create
       OPEN(UNIT=13,FILE=LMRKFILE)
       LMRKFILE=MAP0//'-v.TXT'
       OPEN(UNIT=14,FILE=LMRKFILE)
+      LMRKFILE=MAP0//'-lat.TXT'
+      OPEN(UNIT=15,FILE=LMRKFILE)
+      LMRKFILE=MAP0//'-lon.TXT'
+      OPEN(UNIT=16,FILE=LMRKFILE)
 
 
 C     Loop over the entire array
@@ -217,12 +224,23 @@ C         Phase
 C         Slope
           write(13,240, advance="no") (TMPL(I,J,1))
           write(14,240, advance="no") (TMPL(I,J,2))
+
+C			Lat and lon
+          dist = sqrt (localV(1)**2 + localV(2)**2 + localV(3)**2)
+          lon =atan2 ( localV(2) , localV(1)) * 180 / 3.1415926
+          lat = asin ( localV(3)/dist) * 180/3.1415926
+          write(15,240, advance="no") lat 
+          write(16,240, advance="no") lon 
+
         ENDDO
+
         write (10, *)
         write (11, *)
         write (12, *)
         write (13, *)
         write (14, *)
+        write (15, *)
+        write (16, *)
       ENDDO
 
  240  format (f14.5)
