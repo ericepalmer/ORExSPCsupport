@@ -3,6 +3,8 @@ c	This outputs a set of binary files of i, e, and phase
 c  gfortran phasei.f /usr/local/lib/spicelib.a COMMON.a -O2 -o ~/bin/t.phasei
 c  Version 1.1 - 25 Nov 2020 - Eric E. Palmer
 c		Calculates lat/lon and outputs them also
+c  Version 1.2 -- 14 May 2021
+C     Checks for bad data.  If Z2 is greater than 1, set to 1 and show error
 
       IMPLICIT NONE
 
@@ -203,6 +205,12 @@ C         Converts into spacecraft frame
           SP(2)= VDOT(SZ,UY)
           SP(3)= VDOT(SZ,UZ)
           GAMMA=SQRT(1+TMPL(I,J,1)**2+TMPL(I,J,2)**2)
+
+C         Look for bad data
+          if (GAMMA .EQ. 0) then
+             write (*,*) "Gamma null", i, j, TMPL(I,J,1), TMPL(I,J,2)
+             exit
+          ENDIF
   
 
 C         Calculate the angles
@@ -214,6 +222,10 @@ C         Incidence
 
 C         Emission
           Z2=(CP(3) + TMPL(I,J,1)*CP(1) + TMPL(I,J,2)*CP(2) )/GAMMA
+          if (Z2 .gt. 1) then
+             write (*,*) "Z2 is greater than 1", Z2, ANG, "I, J", I, J
+             Z2 = 1 
+          ENDIF
           ang = ACOS (Z2) / RPD()
           write(11,240, advance="no") ang
 
