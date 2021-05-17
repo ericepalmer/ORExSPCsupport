@@ -72,7 +72,7 @@ C     Checks for bad data.  If Z2 is greater than 1, set to 1 and show error
       CHARACTER*72          PICT
       CHARACTER*72          PICTFILE
     
-      version = 1.1
+      version = 1.2
 
 
       WRITE(*,*) 'Version:', version
