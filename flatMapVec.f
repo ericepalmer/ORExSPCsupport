@@ -21,9 +21,9 @@ C  Version 1.2 - 28 Sep 2021 -- For large bigmaps, corrects for curvature
       REAL*4                AL1(-NTMP:NTMP,-NTMP:NTMP)
       REAL*4                mVal, mX, mY
       REAL*4                minVal, minX, minY
-      real                  radius, height
-      real                  distance, theta, newR
-      real                  x, y
+      real*8                 radius, height
+      real*8                distance, theta, newR
+      real*8                x, y
 
       INTEGER               QSZ
       INTEGER               QSZLESS
@@ -31,11 +31,14 @@ C  Version 1.2 - 28 Sep 2021 -- For large bigmaps, corrects for curvature
       INTEGER               J
       INTEGER               K
       INTEGER               zeros
+      REAL                  version
 
       CHARACTER*6           MAP0
       CHARACTER*6           MAP1
       CHARACTER*72          LMRKFILE
 
+      version = 1.2
+      WRITE(6,*) 'Version:  ', version
       WRITE(6,*) 'Input map name [6 char only]'
       READ(5,FMT='(A6)') MAP0
 
@@ -72,8 +75,8 @@ C         Get distance
 
 
 C         Compute new radius at position i, j
-          theta = atan2 (distance, radius + height) 
-          newR = distance / sin (theta)
+          theta = datan2 (distance, radius + height) 
+          newR = distance / dsin (theta)
 
 C         If the angle is small, use the radius without correction
           if ( theta .LT. .01 )  then
