@@ -1,7 +1,8 @@
-c  Version 1.0 - 1 January 2012 - Eric Palmer (from Gaskell)
-c	This outputs a bigmap as a simple csv textfile, grid format
-c  gfortran flatMap.f -O2 -o ~/bin/t.flatMap
-c  Vers 1.1 - 23 Aug 2015 -- Output in radius. Used vector to calculate radius
+C  Version 1.0 - 1 January 2012 - Eric Palmer (from Gaskell)
+C	This outputs a bigmap as a simple csv textfile, grid format
+C  gfortran flatMap.f -O2 -o ~/bin/t.flatMap
+C  Vers 1.1 - 23 Aug 2015 -- Output in radius. Used vector to calculate radius
+C  Version 1.2 - 28 Sep 2021 -- For large bigmaps, corrects for curvature
 
       IMPLICIT NONE
 
@@ -20,7 +21,9 @@ c  Vers 1.1 - 23 Aug 2015 -- Output in radius. Used vector to calculate radius
       REAL*4                AL1(-NTMP:NTMP,-NTMP:NTMP)
       REAL*4                mVal, mX, mY
       REAL*4                minVal, minX, minY
-      real                  radius
+      real*8                 radius, height
+      real*8                distance, theta, newR
+      real*8                x, y
 
       INTEGER               QSZ
       INTEGER               QSZLESS
@@ -28,11 +31,14 @@ c  Vers 1.1 - 23 Aug 2015 -- Output in radius. Used vector to calculate radius
       INTEGER               J
       INTEGER               K
       INTEGER               zeros
+      REAL                  version
 
       CHARACTER*6           MAP0
       CHARACTER*6           MAP1
       CHARACTER*72          LMRKFILE
 
+      version = 1.2
+      WRITE(6,*) 'Version:  ', version
       WRITE(6,*) 'Input map name [6 char only]'
       READ(5,FMT='(A6)') MAP0
 
@@ -50,15 +56,42 @@ c  Vers 1.1 - 23 Aug 2015 -- Output in radius. Used vector to calculate radius
       write (*,*) "# Scale: ", SCALE * 1000
       write (*,*) "# Radius: ", radius
 
+C -------------------------------------------
+C     Convert to flat
+C     update radius (newR) to convert Ht from normal plane to sphere
+C     radius, newR are in m
+C     Convert I and J to physical distance, X and Y
       DO J=-QSZ,QSZ
         DO I=-QSZ,QSZ
           if (HT0(I, J) .EQ. 0) then
             zeros = zeros+1
           endif
-          Ht0(i,j) = Ht0(i,j) * 1000 * scale + radius
+          height = Ht0(I,J) * 1000 * SCALE
+
+C         Get distance
+          X = I * SCALE * 1000
+          Y = J * SCALE * 1000
+          distance = sqrt ( X*X + Y*Y )
+
+
+C         Compute new radius at position i, j
+          theta = datan2 (distance, radius + height) 
+          newR = distance / dsin (theta)
+
+C         If the angle is small, use the radius without correction
+          if ( theta .LT. .01 )  then
+             newR = radius
+          endif
+
+          Ht0(i,j) = newR
+C          Ht0(i,j) = theta * 180 / 3.1415
+C          Ht0(i,j) = height
+C          Ht0(i,j) = Ht0(i,j) * 1000 * scale + radius
         ENDDO
       ENDDO
 
+C -------------------------------------------
+C     Get statistics
       mVal = -99999
       minVal = 99999
       zeros=0
@@ -80,6 +113,8 @@ c  Vers 1.1 - 23 Aug 2015 -- Output in radius. Used vector to calculate radius
       write (*,*) "# Min Val ", minVal, " (", minX, ", ", minY, ")"
       write (*,*) "# Zeros:  ", zeros
 
+C -------------------------------------------
+C     Print
       DO J=-QSZ,QSZ
         write(10,240) ( HT0(I,J), I=-QSZ,QSZ )
       ENDDO
