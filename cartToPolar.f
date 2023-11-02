@@ -23,8 +23,6 @@ C  Right now, it just converts x, y, z into lat/lon
       REAL*4                mVal, mX, mY
       REAL*4                minVal, minX, minY
       DOUBLE PRECISION      lat, lon, x, y, z, radius, az, zenith
-      DOUBLE PRECISION      sunEl, sunLon, cameraEl, cameraLon
-      DOUBLE PRECISION      cameraAz, cameraZenith
 
       INTEGER               QSZ
       INTEGER               QSZLESS
@@ -36,70 +34,38 @@ C  Right now, it just converts x, y, z into lat/lon
       CHARACTER*6           MAP0
       CHARACTER*6           MAP1
       CHARACTER*72          LMRKFILE
-      CHARACTER*200         KERNEL
-      CHARACTER*200         name
 
+C      WRITE(6,*) 'Input input map name [6 char and no path]'
+C      READ(5,FMT='(A6)') MAP0
 
-c      write (*,*) " Zenith [deg]			  Azmiuth [deg]		  Radius"
-      OPEN(UNIT=10, file='CSPLOT.TXT',status='old')
-C     Skip first line
-      READ(10,FMT='(A80)') KERNEL
+C      LMRKFILE='MAPFILES/'//MAP0//'.MAP'
+C      CALL READ_MAP(LMRKFILE,NTMP,QSZ,SCALE,V,UX,UY,UZ,HT0,AL0)
 
-C     Loop over file until done
-200     CONTINUE
-        READ(10,FMT='(A80)') KERNEL
-        IF(KERNEL(1:3).NE.'END') THEN
-          READ(KERNEL,*) name, sunEl, sunLon, cameraEl, cameraLon
+      WRITE(6,*) 'Enter X, Y and Z'
+      READ(5,*) x, y, z
 
-CCCCC Do the Sun
+      V(1) = x
+      V(2) = y
+      V(3) = z
+      CALL RECLAT(v, radius, lon, lat)
+      write (*,*) " Zenith [deg]			  Azmiuth [deg]		  Radius"
+
 C     Degrees
-          lon = sunLon 
+      lon = lon * DPR()
 C     Make positive
-          if (lon .lt. 0) lon = lon + 360
+      if (lon .lt. 0) lon = lon + 360
 C     Flip axis
-          az = 360 - lon
+      az = 360 - lon
 C     Rotate to north(0) up
-          az = az + 90
+      az = az + 90
 C     Bring less than 360 if needed
-          if (az .gt. 360) az = az - 360
+      if (az .gt. 360) az = az - 360
 
 C     Degrees
-          lat = sunEl 
+      lat = lat * DPR()
 C     Switch to zero
-          zenith = 90 - lat
-c          write (*,*) "Source", sunEl, sunLon
-
-
-CCCCC Do the Camera
-C     Degrees
-          lon = cameraLon 
-C     Make positive
-          if (lon .lt. 0) lon = lon + 360
-C     Flip axis
-          cameraAz = 360 - lon
-C     Rotate to north(0) up
-          cameraAz = cameraAz + 90
-C     Bring less than 360 if needed
-          if (cameraAz .gt. 360) cameraAz = cameraAz - 360
-
-C     Degrees
-          lat = cameraEl 
-C     Switch to zero
-          cameraZenith = 90 - lat
-
-c          write (*,*) "Source", sunEl, sunLon
-          write (*,*) zenith, az, cameraZenith, cameraAz
-
-
-
-
-
-
-         GO TO 200
-        ENDIF
-210    CONTINUE
-
-
+      zenith = 90 - lat
+      write (*,*) zenith, az, radius
 
 
       STOP
