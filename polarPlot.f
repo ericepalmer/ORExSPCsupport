@@ -47,9 +47,8 @@ c      CALL READ_MAP(LMRKFILE,NTMP,QSZ,SCALE,V,UX,UY,UZ,HT0,AL0)
       V(1) = x
       V(2) = y
       V(3) = z
-      write (*,*) v
       CALL RECLAT(v, radius, lon, lat)
-      write (*,*) " Zenith [deg]			Azmiuth [deg]		Radius"
+      write (*,*) " Zenith [deg]			  Azmiuth [deg]		  Radius"
 
 C     Degrees
       lon = lon * DPR()
@@ -66,7 +65,7 @@ C     Degrees
       lat = lat * DPR()
 C     Switch to zero
       zenith = 90 - lat
-      write (*,*) zenith, "deg", az, "deg", radius
+      write (*,*) zenith, az, radius
 
 
       STOP
