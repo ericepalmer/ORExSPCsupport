@@ -56,12 +56,23 @@ C     Degrees
           lon = sunLon 
 C     Make positive
           if (lon .lt. 0) lon = lon + 360
-C     Flip axis
-          az = 360 - lon
+
+
+C     Flip
+           az = 180 - lon
 C     Rotate to north(0) up
-          az = az + 90
+           az = az + 90
 C     Bring less than 360 if needed
-          if (az .gt. 360) az = az - 360
+           if (az .gt. 360) az = az - 360
+
+C     Flip axis
+C          az = 360 - lon
+C     Rotate to north(0) up
+C          az = az + 90
+C     Bring less than 360 if needed
+C          if (az .gt. 360) az = az - 360
+
+
 
 C     Degrees
           lat = sunEl 
@@ -76,7 +87,8 @@ C     Degrees
 C     Make positive
           if (lon .lt. 0) lon = lon + 360
 C     Flip axis
-          cameraAz = 360 - lon
+C          cameraAz = 360 - lon
+          cameraAz = 180 - lon
 C     Rotate to north(0) up
           cameraAz = cameraAz + 90
 C     Bring less than 360 if needed
