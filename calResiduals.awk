@@ -14,7 +14,7 @@ BEGIN		{
 ## New landmark found
 $2 ~ /T/ {
 
-	res = $3;
+	newRes = $3;
 	if (firstPass) {
 		printf ("  %8s %8s %8s %8s %8s   [m] %8s\n", "Name", "Image", "Limbs", "Over", "ImgLimb", "res[m]");
 	}
@@ -71,6 +71,7 @@ $2 ~ /T/ {
 		
 
 		name = 0;
+      res = newRes;
 	} 
 
 	name = $1;
