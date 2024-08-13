@@ -17,6 +17,7 @@ fi
 p=`pwd`
 #exPath=/Volumes/Data1/spc-test/shape4/support
 exPath=/opt/local/spc/bin
+exPath=~/Documents/GitHub/ORExSPCsupport/
 
 awk -f $exPath/calResiduals.awk RESIDUALS.TXT | grep -v -e Average -e Name > ~/tmp80a
 
