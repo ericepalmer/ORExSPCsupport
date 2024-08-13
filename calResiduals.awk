@@ -9,17 +9,16 @@ BEGIN		{
 	firstPass = 1;
 	totalSum = 0;
 	totalCnt = 0;
+#	printf ("  %8s %8s %8s %8s %8s   [m] %8s\n", "Name", "Image", "Limbs", "Over", "ImgLimb", "res[m]");
 	}
 #########################
 ## New landmark found
-$2 ~ /T/ {
+$2 ~ /T|#/ {
 
-	newRes = $3;
-	if (firstPass) {
-		printf ("  %8s %8s %8s %8s %8s   [m] %8s\n", "Name", "Image", "Limbs", "Over", "ImgLimb", "res[m]");
-	}
 
-					## skips firstPass time
+	# When a flag (T) is found, output the data.
+   # However, skip the first time
+   # Print the old data when a "T" line is found
 	if (! firstPass) {
 		#print imageCnt, overCnt, limbCnt
 		bigSum = 0
@@ -71,9 +70,9 @@ $2 ~ /T/ {
 		
 
 		name = 0;
-      res = newRes;
 	} 
 
+#  This is done for the first entry (plus others)
 	name = $1;
 	cnt = 0;
 	overCnt = 0;
@@ -81,16 +80,21 @@ $2 ~ /T/ {
 	limbCnt = 0;
 	limbReady = 0;
 	firstPass = 0;
+   res=$3
 }
 #########################
 $1 !~ /\.\.\./	{ 
 	if ($2 != "T") {
 
 	val = $5
+
+
+	# Shifts columsn if there is a >> flag in RESIDIALS.TXT
 	if ($1 == ">>") val = $6
 	#val *= 1000;
 
 	str = $1
+	# Shifts columsn if there is a >> flag in RESIDIALS.TXT
 	if ($1 == ">>") str = $2
 	len=length (str)
 
