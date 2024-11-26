@@ -29,7 +29,7 @@ C     Data for the input can come from spc_tools Depth
       REAL*4                DNPost(-NTMP:NTMP,NTMP)
 
       INTEGER            I, I1
-      INTEGER            J, J1
+      INTEGER            J, J1, JPre, JPost
       INTEGER            IC, IL
       INTEGER            JC, JL
       INTEGER            K, L
@@ -115,7 +115,7 @@ C     Calcualte the height in 2D.  Set min/max also
         I=NINT(X)
         J=NINT(Y)
         GPre(I-IC,J-JC)=1
-        GPost(I-IC,J-JC)=1
+        GPost(I-IC,J-JC)=0
         I=INT(X)
         J=INT(Y)
         X=X-I
@@ -162,8 +162,8 @@ C     Q is display width, largest of all
 C     Fill whole frame with black
       DO I=-Q,Q                                                         column
         DO J=1,2*Q0+20+K                                                row
-          DNPre(I,J)=.05
-          DNPost(I,J)=.10
+          DNPre(I,J)=.55
+          DNPost(I,J)=.45
         ENDDO
       ENDDO
  
@@ -182,19 +182,30 @@ C     Post
       ENDDO
       ENDDO
 
+      
 C     Bottom is profile, J is the height, scaled
 C     Pre
+      OPEN(UNIT=10, FILE="traverse.txt", STATUS='OLD')
+      write (10,*) "# Bigmap: ", MAPNM
+      write (10,*) "#       Pre         Post"
       DO I=-Q1,Q1
-        J=NINT(5*(Z2-HPre(I)))+2*Q0+10+1
-        DNPre(I,J)=1
-        DNPre(I,2*Q0+2)=.5
+        JPre=NINT(Z2-HPre(I))+2*Q0+10+1
+        DNPre(I,JPre)=1
+        JPost=NINT(Z2-HPost(I))+2*Q0+10+1
+        DNPre(I,JPost)=0
+
+        DNPre(I,2*Q0+2)=1
+        write (10,*) JPre, JPost
       ENDDO
+      CLOSE(UNIT=10)
 
 C     Post
       DO I=-Q1,Q1
+        J=NINT(5*(Z2-HPre(I)))+2*Q0+10+1
+        DNPost(I,J)=1
         J=NINT(5*(Z2-HPost(I)))+2*Q0+10+1
-        DNPost(I,J)=.75
-        DNPost(I,2*Q0+2)=.5
+        DNPost(I,J)=0
+        DNPost(I,2*Q0+2)=0
       ENDDO
 
 C------------------------------------------------------------------------
