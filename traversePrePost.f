@@ -59,10 +59,10 @@ C     Data for the input can come from spc_tools Depth
       READ(5,*) IL, JL
 
       MAPFILE='pre1/MAPFILES/'//MAPNM//'.MAP'
-      MAPFILE='MAPFILES/'//MAPNM//'.MAP'
+C      MAPFILE='MAPFILES/'//MAPNM//'.MAP'
       CALL READ_MAP(MAPFILE,NTMP,QSZ,SCALE,V,UX,UY,UZ,HT1,ALB)
       MAPFILE='post1/MAPFILES/'//MAPNM//'.MAP'
-      MAPFILE='MAPFILES/'//MAPNM//'.MAP'
+C      MAPFILE='MAPFILES/'//MAPNM//'.MAP'
       CALL READ_MAP(MAPFILE,NTMP,QSZ,SCALE,V,UX,UY,UZ,HT2,ALB)
 
 C     Set the grid values for usable
