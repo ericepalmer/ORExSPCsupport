@@ -10,7 +10,7 @@ C     Data for the input can come from spc_tools Depth
       PARAMETER        (NTMP=2501)
 
       DOUBLE PRECISION  SCALE
-      DOUBLE PRECISION  V(3)
+      DOUBLE PRECISION  V(3), radius
       DOUBLE PRECISION  UX(3)
       DOUBLE PRECISION  UY(3)
       DOUBLE PRECISION  UZ(3)
@@ -29,7 +29,8 @@ C     Data for the input can come from spc_tools Depth
       REAL*4                DNPost(-NTMP:NTMP,NTMP)
 
       INTEGER            I, I1
-      INTEGER            J, J1, JPre, JPost
+      INTEGER            J, J1
+      REAL*4             JPre, JPost
       INTEGER            IC, IL
       INTEGER            JC, JL
       INTEGER            K, L
@@ -64,6 +65,7 @@ C      MAPFILE='MAPFILES/'//MAPNM//'.MAP'
       MAPFILE='post1/MAPFILES/'//MAPNM//'.MAP'
 C      MAPFILE='MAPFILES/'//MAPNM//'.MAP'
       CALL READ_MAP(MAPFILE,NTMP,QSZ,SCALE,V,UX,UY,UZ,HT2,ALB)
+      radius = sqrt (V(1)**2 + V(2)**2 + V(3)**2) * 1000
 
 C     Set the grid values for usable
 C     G is the height over the line
@@ -187,15 +189,16 @@ C     Bottom is profile, J is the height, scaled
 C     Pre
       OPEN(UNIT=10, FILE="traverse.txt", STATUS='OLD')
       write (10,*) "# Bigmap: ", MAPNM
-      write (10,*) "#       Pre         Post"
+      write (10,*) "#       Pre         Post      Delta"
       DO I=-Q1,Q1
-        JPre=NINT(Z2-HPre(I))+2*Q0+10+1
-        DNPre(I,JPre)=1
-        JPost=NINT(Z2-HPost(I))+2*Q0+10+1
-        DNPre(I,JPost)=0
+        JPre=(Z2-HPre(I))+2*Q0+10+1
+        DNPre(I,NINT(JPre))=1
+        JPost=(Z2-HPost(I))+2*Q0+10+1
+        DNPre(I,NINT(JPost))=0
 
         DNPre(I,2*Q0+2)=1
-        write (10,*) JPre, JPost
+        write (10,*) radius + HPre(I), radius + HPost(I), 
+     +           HPre(I) - HPost (I)
       ENDDO
       CLOSE(UNIT=10)
 
@@ -224,7 +227,7 @@ C     Write the file and covert it to PGM
         ENDDO
       CLOSE(UNIT=10)
 
-      OUTFILE='TEMPFILE.pgm'
+      OUTFILE='traverse.pgm'
 
       CALL RAW2PGM(INFILE, OUTFILE, 4*Q+1, 2*Q0+20+K)
 c      OPEN(UNIT=63, FILE=INFILE, STATUS='OLD')
